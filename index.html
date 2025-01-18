@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>璇洛的计时器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .video-box {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .video-background {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .countdown-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin-bottom: 30px;
+    }
+
+    .countdown-item {
+      width: 30%;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .countdown-item1 {
+      width: 18%;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .countdown-item h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .countdown-item span {
+      font-size: 24px;
+    }
+
+    .button {
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: box-shadow 0.3s;
+      background-color: #4CAF50;
+    }
+
+    .button:hover {
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #tooltip {
+      position: absolute;
+      background: #333;
+      color: #fff;
+      padding: 5px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 1001;
+      max-width: 80%;
+      overflow-y: auto;
+      max-height: 80%;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="video-box">
+    <video class="video-background" preload="auto" loop playsinline autoplay src="https://v.06dn.com/api/v3/slave/source/0/L3VwbG9hZHMvMjE1OTMvMjAyNDA3LzEzLzIxNTkzX0NLQVNiYVNFX3cubXA0/w.mp4?sign=HGtjGrSiFku_68Q_1GmuEzgevxvPWJ_otXK1Gb-6oC8%3D%3A1720925722" tabindex="-1" muted="muted"></video>
+  </div>
+  <div class="countdown-item">
+  <h1>璇洛的恐鬼症计时器</h1>
+  <h3>有bug请联系QQ：2501926835</h3>
+      <h2>正计时</h2>
+      <span id="time">00:00:00</span>
+      <button class="button start-btn" onclick="startCountdown(); showTooltip(this, '开始计时')">开始</button>
+      <button class="button stop-btn" onclick="stopCountdown(); showTooltip(this, '停止计时')">停止</button>
+      <button class="button reset-btn" onclick="resetCountdown(); showTooltip(this, '重置计时')">重置</button>
+    </div>
+  <div class="countdown-container">
+  <div class="overlay" id="overlay" onclick="hidePopup()"></div>
+  <div class="popup" id="popup">
+    <p id="popup-text"></p>
+  </div>
+
+    <div class="countdown-item">
+      <h2>熏香倒计时</h2>
+      <span id="incense-time">01:30</span>
+      <button class="button start-btn" onclick="startIncenseCountdown(); showTooltip(this, '开始熏香倒计时')">开始</button>
+      <button class="button stop-btn" onclick="stopIncenseCountdown(); showTooltip(this, '停止熏香倒计时')">停止</button>
+      <button class="button reset-btn" onclick="resetIncenseCountdown(); showTooltip(this, '重置熏香倒计时')">重置</button>
+      <h2>魂魄熏香倒计时</h2>
+      <span id="soul-incense-time">03:00</span>
+      <button class="button start-btn" onclick="startSoulIncenseCountdown(); showTooltip(this, '开始魂魄熏香倒计时')">开始</button>
+      <button class="button stop-btn" onclick="stopSoulIncenseCountdown(); showTooltip(this, '停止魂魄熏香倒计时')">停止</button>
+      <button class="button reset-btn" onclick="resetSoulIncenseCountdown(); showTooltip(this, '重置魂魄熏香倒计时')">重置</button>
+      <button class="button blue-btn" onclick="startBothIncenseCountdowns(); showTooltip(this, '同时启动熏香和魂魄熏香倒计时')">一键重置并且开始熏香计时</button>
+    </div>
+    <div class="countdown-item">
+      <h2>恶魔猎杀倒计时（单位：秒）</h2>
+      <span id="demon-hunt-time">00:20</span>
+      <button class="button start-btn" onclick="startDemonHuntCountdown(); showTooltip(this, '开始恶魔猎杀倒计时')">开始</button>
+      <button class="button stop-btn" onclick="stopDemonHuntCountdown(); showTooltip(this, '停止恶魔猎杀倒计时')">停止</button>
+      <button class="button reset-btn" onclick="resetDemonHuntCountdown(); showTooltip(this, '重置恶魔猎杀倒计时')">重置</button>
+      <h2>普通猎杀倒计时（单位：秒）</h2>
+      <span id="normal-hunt-time">00:25</span>
+      <button class="button start-btn" onclick="startNormalHuntCountdown(); showTooltip(this, '开始普通猎杀倒计时')">开始</button>
+      <button class="button stop-btn" onclick="stopNormalHuntCountdown(); showTooltip(this, '停止普通猎杀倒计时')">停止</button>
+      <button class="button reset-btn" onclick="resetNormalHuntCountdown(); showTooltip(this, '重置普通猎杀倒计时')">重置</button>
+      <button class="button blue-btn" onclick="startBothHuntCountdowns(); showTooltip(this, '同时启动恶魔猎杀和普通猎杀倒计时')">一键重置并且开始猎杀计时</button>
+    </div>
+  
+
+  <div id="tooltip"></div>
+
+  <div class="countdown-item1">
+    <h2>恐鬼症攻略</h2>
+	<h3>资料来源：Zero_up bilibili</h3>
+    <div style="display: flex; flex-wrap: wrap;">
+    <button class="button" onclick="showPopup('魂魄<br><br>证据：五级，笔记，通灵盒；<br><br>特性：<br>点完圣木熏到鬼后180s内无法猎杀（圣木刚熏到鬼开始计时）<br>（注：圣木在有效范围内可以正常对鬼魂产生效果（致盲，减速，禁锢），但是高低差条件下往往不视为在其附近点燃圣木（即失效）<br>（其实理论是失效、但是恐bug症&hellip;&hellip;））；<br><br>速度：1.7m/s-2.8m/s；<br><br>技能：魂魄会模仿其他鬼魂的互动、溜达、低语、脚步、灵异事件、技能 &hellip;&hellip; 但并不是真的能使用其他鬼的特性、技能。（魂魄在150%速下出现了孪魂快鬼脚步失真的现象）<br><br>猎杀阈值：50%；<br><br>判断方法：点完圣木熏到鬼魂后，鬼魂三分钟内不会发起猎杀（注意：不能根据三分钟不猎杀判定鬼一定是魂魄，只能作为验证手段）')">魂魄</button>
+    <button class="button" onclick="showPopup('魅影<br><br>证据：五级，点阵，通灵盒；<br><br>特性：魅影永远不会踩盐，所以三级盐的减速和阻挡效果对魅影无效；<br><br>技能：可以传送到玩家处（此时留下emf2或emf5级反应，进行互动，或者直接开启猎杀），魅影更倾向于是传送后短暂留在原地，进行下一个行为后回到鬼房；（注意：魅影传送后是徒步回到鬼房，期间可以进行互动或者发起猎杀）<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：在自己所处位置凭空给出emf2级或emf5级；在盐旁边放上运动传感器，若鬼魂触发运传但是并未踩盐即可判定；当前版本猎杀期间鬼魂可以踩盐了！故可以通过猎杀期间是否踩盐判定；')">魅影</button>
+
+    <button class="button" onclick="showPopup('幻影<br><br>证据：点阵，指纹，通灵盒；<br><br>特性：<br>现身事件时，拍摄鬼照会使鬼（实体、黑影、灵体）消失，但是现身音效仍在（关键特性）；<br>并且所拍摄鬼照中没有鬼的存在，无马赛克影响<br>注意：<br>1、鬼照清晰不一定是幻影，有可能只是恰巧照片拍摄于干扰间隙时；<br>2、拍摄鬼照但是照片里没鬼也不一定是幻影，照片可能拍摄于现身刚开始或刚结束）；<br>幻影猎杀时闪烁频率很慢，几乎看不到；<br>注视幻影会让注视的玩家理智每秒降低 0.4%，即使幻影在隐形状态，仍然有效；<br>在幻影附近使用通灵板时会增加幻影的活动强度，使用越频繁活动强度越高（在活动强度板可使用时，能够明显观察到）；<br><br>技能：可以通过附身跟随玩家（无视距离且可以发起猎杀），在起点留下emf2级反应，在终点留下一个互动（若有人）（幻影更倾向于跟随玩家成功后，长时间的跟随该玩家且不返回鬼房，所以极易出现脸猎，并且该行为可能造成幻影更换鬼房）；<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：现身时拍摄鬼魂照片，鬼魂消失、照片清晰无鬼魂，但是现身事件的背景音效还在（注意可能现身事件恰好结束）；幻影猎杀时闪烁频率很慢，几乎无法看到幻影本体；或者通过运动传感器观察幻影跟随人这一行为；')">幻影</button>
+
+    <button class="button" onclick="showPopup('骚灵<br><br>证据：指纹，笔记，通灵盒；<br><br>特性：能同时进行多物品投掷，且力度大（0.5s触发一次物品投掷），每个被投掷物品扣除附近玩家3%理智；若鬼房内没有可投掷物品则骚灵会偏向于更换鬼房;<br><br>技能：骚灵会一瞬间互动一个位置的多个互动道具。<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：在骚灵附近堆一堆可互动物品，如果突然炸开即为骚灵发动主动技能；或者猎杀时看扔东西的频率及力度，骚灵非常明显（桌面清理大师）（注意：当前版本在一些对局中某些鬼魂猎杀时对物品的互动很多且力度也不小，注意自行区分甄别）；')">骚灵</button>
+
+    <button class="button" onclick="showPopup('女妖<br><br>证据：点阵，指纹，灵球；<br><br>特性：<br>使用收音器有概率能听到特殊尖叫，并非鬼的低语，类似于嘶喊<br>所有人均可听到，这是一个范围性尖叫，只要发出就能在附近用收音器检测到）；<br>多人游戏时，女妖开局会锁定一个目标进行猎杀（该顺序完全随机），直到该玩家死亡，若该玩家不处于房屋内，女妖开启猎杀后与正常鬼一样猎杀；<br>注意：<br>1.女妖的猎杀阈值只与锁定目标有关；<br>2.若被锁定玩家不在房屋内，女妖开启猎杀后与正常鬼一样猎杀；<br>3.塔罗牌倒吊人和天使，猴爪复活会改变继承顺序；<br>4.在被锁定玩家未在房屋内，女妖正常猎杀时，若房屋内玩家用猴爪使用希望离开打开大门，被锁定玩家进入房屋内不会改变女妖猎杀的目标；<br>5.女妖单次猎杀击杀被锁定玩家后，锁定目标立即继承更换）；<br>玩家碰撞女妖歌唱形式灵异事件时扣15理智；<br><br>技能：女妖会跟随一名曾经到过鬼房的玩家（大多数为被锁定玩家），在起始点留下一个凭空的emf 2级，在终点留下一个互动（假如附近有人）<br>（女妖并不是真的跟着人走，更倾向于锁定玩家曾经到过的一个位置，进行短距离的点到点的移动）；<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：锁定目标的50%（所以女妖在多人游戏中可能会出现伪高猎的情况）；<br><br>判断方法：用大锅收听女妖尖叫；或者全员进屋（避免被锁定的人在屋外触发正常猎杀）等待猎杀时看女妖是否有锁定目标。')">女妖</button>
+
+    <button class="button" onclick="showPopup('巨灵<br><br>证据：五级，指纹，刺骨；<br><br>特性：<br>永不关闭电闸（一定）；<br>巨灵可以主动开灯造成跳闸效果；<br>（注意：关闸灯开关位置不变，跳闸灯开关全部关闭）；<br>猎杀时在3m外看到玩家时（视野锁定而非电器锁定），将以2.5m/s的速度冲向玩家，在3m内减速至正常；<br>（附：除了寒魔不能主动开闸外，所有鬼都能开闸，包括梦魇）<br><br>技能：电闸开启时，巨灵的主动能力为扣除鬼房内及3m内玩家25%理智，并且在电闸处留下emf2级或5级反应（即对电闸进行了互动但没有任何实际效果）（附：此技能现版本几乎不发动）<br><br>速度：1.7m/s-2.8m/s（3m外看见玩家速度2.5m/s，不享受视野加速叠加但具有内置视野加速，到达3m内，2.5m/s速度取消，转而继承正常视野加速后的速度）；<br><br>猎杀阈值：50%；<br><br>判断方法：电闸开启时观看巨灵猎杀的技能加速；永不关闸（只能通过关闸排除巨灵，不建议通过不关闸确定巨灵）；（附：无电闸状态下巨灵才是真正的普通鬼，此处的无电闸状态包括关闸状态和电闸损坏状态）')">巨灵</button>
+
+    <button class="button" onclick="showPopup('梦魇<br><br>证据：灵球，笔记，通灵盒；<br><br>特性：<br>不会开灯（一定）；<br>梦魇可以打开遥控器（这属于开关但当前版本更新后可以打开）；<br>当梦魇鬼房开着灯时，梦魇活跃强度有所降低（仅与黑暗条件下梦魇对比，因为黑暗条件下梦魇更加活跃），梦魇会先在鬼房走动寻找鬼房内的黑暗处（包括小角落），如果鬼房无满足条件的地点，梦魇会倾向于离开鬼房并且在附近游荡，寻找一个黑暗的区域作为新的鬼房。（即使是设置了不更换鬼房也会出现寻找黑暗这一现象）如果附近没有黑暗的区域，梦魇可能会连续换房。（附：梦魇在寻找新鬼房的时候，有较高概率爆掉新鬼房的灯）<br><br>技能：当附近（只跟梦魇所在位置有关）有灯突然打开时，梦魇有概率直接关灯（秒关灯），且留下emf2级（判定为使用能力），灵异事件的开关灯并不算；<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：黑暗下为60%，灯光下为40%；<br><br>判断方法：注意梦魇使用能力秒关灯（计入使用能力次数）；零证据下经常考虑使用运动传感器检测位置，开启鬼房灯光，观察梦魇是否离开鬼房寻找黑暗区域（包括小角落）；')">梦魇</button>
+
+    <button class="button" onclick="showPopup('亡魂<br><br>证据：灵球，笔记，刺骨；<br><br>特性：猎杀时未锁定玩家速度较慢，锁定玩家后速度极快，注意，中途丢失锁定会使亡魂在到达最后感知位置时，以每秒减少0.75m/s的速度回到1m/s；<br><br>速度：1m/s（未锁定），3m/s（已锁定）（会出现脚步失真现象）；（附：此处的锁定为亡魂判定到了玩家存在位置，例如电器，视野判定点或者开麦说话）<br><br>技能：亡魂开局可以一个互动之后立马进行游荡，高难度下会出现开局换房的情况；<br><br>猎杀阈值：50%；<br><br>判断方法：躲起来听脚步，如果初始脚步非常慢，看到人之后飞起来就是亡魂；')">亡魂</button>
+
+    <button class="button" onclick="showPopup('暗影<br><br>证据：五级，笔记，刺骨；<br><br>特性：<br>当多名玩家在附近时，一般不会开启猎杀，但可以跑到没人的地方开启猎杀；<br>当有人在附近时，基本不会进行互动（不排除社牛暗影），但是鬼魂对蜡烛的互动与其他互动有所区别，可以发现周围有人时，暗影仍然正常对蜡烛进行互动；暗影留下emf5级的概率更大；<br>通过召唤阵，八音盒，猴爪召唤鬼时，有一定概率以黑雾出现；<br>暗影在平均理智到达50%时即为正常活动强度；<br><br>技能：暗影鬼房有人时，若发动该技能，暗影会逃跑到5m之外（寻址路径）的一个位置，长时间不返回鬼房，并在躲避处给互动。暗影在躲避处被人找到时，扣除半径7.5m附近玩家至多10%理智，之后暗影会返回鬼房。（已验证）<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：35%，可以给到40%；<br><br>判断方法：暗影猎杀阈值很低（有理智屏可以直接判定）；暗影在附近有人时活动强度主动降低（体现为基本不互动，猎杀缓慢或者不开启猎杀）；零证据下经常考虑使用运动传感器检测位置，多人在暗影位置附近，记录此刻开始的互动数，观察暗影是否先在鬼房避开人来回走动，或者离开鬼房寻找无人区域（包括小角落！）；')">暗影</button>
+
+    <button class="button" onclick="showPopup('恶魔<br><br>证据：指纹，笔记，刺骨；<br><br>特性：技能为无视理智发动猎杀（注意只是可以发动），十字架对恶魔的阻挡范围为正常十字架生效范围的1.5倍，点完圣木熏到恶魔后60s内无法开启猎杀（魂魄180s，其余90s）；恶魔具有短距离尾随特性（附：恶魔猎杀CD为20s，其余为25s）；<br><br>技能：无视理智发动猎杀（注意只是可以发起，不代表恶魔一定会早猎），（存在社恐恶魔，点圣木过1分半才猎杀，猎杀间隔也很长）；<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：70%；（技能无视理智）；<br><br>判断方法：高理智猎杀或者进门猎杀基本锁定恶魔；点完圣木熏到鬼魂后，鬼魂一分钟内不会发起猎杀（注意：根据一分钟到一分半不猎杀判定鬼一定是恶魔，只能作为验证手段，当然恶魔也可以超过一分半猎杀）；')">恶魔</button>
+
+    <button class="button" onclick="showPopup('幽灵<br><br>证据：点阵，灵球，刺骨；<br><br>特性：幽灵是唯一会被限制位置的鬼，点完圣木后幽灵会被困在鬼房1分半，无法离开鬼房，但是期间可以通过灵异事件逃离鬼房（满足条件可以发动猎杀）；幽灵是目前唯一可以对大门进行互动的鬼（非灵异事件下）；同时幽灵具有大范围游荡的特性；<br><br>技能：非猎杀期间幽灵能立刻关闭一扇完全打开的门（类似于玩家动门的声音），也可以对同一扇门连续进行互动（是连续两声动门声，俗称双动门）（目前版本幽灵的技能经常为两个技能捆绑发动），每次双动门会降低附近玩家10~15%理智（视作灵异事件）；（附：1、版本内存在幽灵完全不动门的情况；2、若幽灵在大门附近，对大门的互动概率非常高；3.当前版本所有鬼魂猎杀时均可以双动门）<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：若幽灵发动主动技能双动门和完全关门，可以确定为幽灵；若不发动技能，可以点完圣木后在鬼房摆运动传感器、撒盐，观察鬼魂一分半内是否离开鬼房（只排不定）；')">幽灵</button>
+
+    <button class="button" onclick="showPopup('赤鬼<br><br>证据：五级，点阵，刺骨；<br><br>特性：赤鬼的哈气事件没有白雾，一定不会进行鬼雾形式的灵异事件；赤鬼猎杀时闪烁频率很快，基本全程可见（注意：在高速下，并不好通过闪烁判断赤鬼；赤鬼的的活跃程度与附近玩家数相联系，人数越多越活跃（当然也可以是社恐赤鬼）；<br><br>技能：发生灵异事件（现身等）时，一旦与玩家碰撞发生扣除理智，造成20%理智扣除（其余鬼魂为10%）；<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：猎杀时观看鬼魂闪烁，基本全程可见锁定赤鬼；若出现鬼雾事件，一定不是赤鬼；有理智屏的情况下可以通过灵异事件的理智扣除来判断；')">赤鬼</button>
+
+    <button class="button" onclick="showPopup('妖怪<br><br>证据：点阵，灵球，通灵盒；<br><br>特性：当玩家在妖怪附近说话或者发出噪音时，有概率在极高理智下发动猎杀；猎杀时对电器类道具感知很低（2m）（并不是感知不到），不会跟着玩家手电筒方向走；<br><br>技能：80%理智以下时，当玩家使用游戏内语音或者通灵盒时，妖怪会因为喧嚣，发动猎杀。（作者团队卡理智到80%以上，怎么说话均不猎杀，一到79%立马猎）<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%，80%（有人在附近说话或发出噪音）；<br><br>判断方法：卡好距离不给鬼魂你的视野，按b喊麦或者使用电器看鬼魂是否找你判断妖怪（注意判断鬼魂找你是猎杀路径恰好有你所在的区域还是被你吸到了）；或者在厨房蹲下溜鬼时，妖怪突然会丢失视野不追你，用电器也吸不住；')">妖怪</button>
+
+    <button class="button" onclick="showPopup('寒魔<br><br>证据：指纹，灵球，刺骨（必给证据）；<br><br>特性：寒魔比正常鬼更容易关闭电闸（从不开闸）；寒魔在猎杀时会吐出白气（开闸时3度及以下，关闸一直有）；在低温区（10度以下）速度快，在高温区（20度以上）速度慢，10度到20度正常；<br><br>技能：猎杀时会不断降低周边区域温度；（附：蜡烛和打火机并不会影响温度，但阳光牧院教堂处燃烧的大十字架和大小营地的篝火能影响温度；所以猎杀时在寒魔路径上和溜鬼点周围点蜡烛并不会影响温度）；<br><br>速度：1.4m/s（&ge;15&deg;），1.75m/s（12&deg;），2.1m/s（9&deg;），2.3m/s（6&deg;），2.5m/s（&le;3&deg;），2.7m/s（＜0&deg;）；（无视野加速）<br><br>猎杀阈值：50%；<br><br>判断方法：寒魔的速度只与温度有关，在低温区很快，在高温区很慢，可以躲起来听脚步，一般来说发起猎杀位置是低温区，速度很快，开始猎杀后离开低温区速度变慢；低温及关闸情况下可以观察到寒魔猎杀时口吐白气；')">寒魔</button>
+
+    <button class="button" onclick="showPopup('御灵<br><br>证据：五级，点阵（摄影机）（必给证据），指纹；<br><br>特性：鬼魂附近没有玩家时可以通过摄影机看到点阵（理论上，因为现版本作者团队已经好几次在周围有人的情况下看到摄影机点阵了）；御灵现版本不倾向于溜达，鬼房里有人时鬼魂互动率有所增加（翻倍互动），鬼房里无人时倾向于远距离灵异事件；<br><br>技能：御灵基本不会更换鬼房（1%概率更换，此概率仅是因为出现过该现象，猴爪强制更换鬼房情况另外讨论）；<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：御灵十分钟对局猎杀一分钟剩下九分钟基本上都在鬼房，可用运动传感器来确认如鬼长时间在鬼房不溜达，且常速无特征不换房，可以大概率确定为御灵，御灵基本不更换鬼房，换了只能自认倒霉了（或者说是bug，乐）；')">御灵</button>
+
+    <button class="button" onclick="showPopup('鬼婴<br><br>证据：五级，指纹，笔记；<br><br>特性：猎杀时脚步很轻，靠很近（同层手电筒开始闪烁距离为10m,鬼婴脚步声为9m）才能听见脚步；收音器能较为频繁的收到鬼婴的声音；<br><br>技能：鬼婴在鬼房内等待一名玩家，当这名玩家进入鬼房之后，鬼婴会离开鬼房，低语，并且留下凭空的emf 5级（2级）。如果有人找到鬼婴，鬼婴会尝试去另外一个房间，否则鬼婴便会返回鬼房；在鬼房外的鬼婴，会选择一名玩家，留下凭空的emf 5级（2级），并试图跟随他回到鬼房，如果这名玩家并不进入鬼房，鬼婴会在鬼房外进行低语、尖叫。<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：猎杀时听脚步，非常轻且稍微远离就听不到基本锁定鬼婴，这个需要自己实战多听几次就熟悉了；')">鬼婴</button>
+
+    <button class="button" onclick="showPopup('怨灵<br><br>证据：灵球，通灵盒，刺骨；<br><br>特性：<br>在被火焰覆盖的区域不会开启猎杀（点燃的蜡烛或者打火机），火光阻挡怨灵的有效范围为4m；<br>理论上火焰的优先级大于十字架，但在三级十字架和火焰同时存在时，开启猎杀的位置有概率不会被火焰阻挡（当前飞升版本三级十字架阻挡范围为5m，此条件下有概率观察到怨灵在火焰存在时啃十字架的现象）；<br>火焰不能跨房间阻猎但怨灵可以隔墙吹灭蜡烛。<br>怨灵通过火焰造成猎杀有两种情况：<br>吹完任意蜡烛有25％概率引起猎杀，吹完三根蜡烛一定会无视理智发动一次猎杀，该猎杀也可被相邻火焰阻挡；<br>火光都是具有体积的，能够被障碍物阻挡，在检定怨灵时，需要注意死角问题。<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：60%，吹完蜡烛后无视理智发动猎杀；（在六十理智以上，此时怨灵不会正常猎杀，不会影响火光计数器的运作，在低理智下，怨灵可能发动正常猎杀扰乱计数器；在大房间内，由于蜡烛范围有限，可能无法阻挡到怨灵猎杀）<br><br>判断方法：在鬼魂身旁点燃三根蜡烛并放置十字架（记住期间最好不要产生新的火焰影响计数器，包含但不限于新点的蜡烛、打火机火光等），如果鬼魂吹灭三根蜡烛后发动猎杀（可能存在一小段延迟）可以判断为怨灵，同时也可以再点上蜡烛观察是否会发动猎杀加以验证；一定注意飞升版本将吹灭蜡烛计入可拍摄互动后，鬼魂对蜡烛的互动率普遍增加，故不建议通过吹灭蜡烛速度判断；')">怨灵</button>
+
+    <button class="button" onclick="showPopup('孪魂<br><br>证据：五级，通灵盒，刺骨；<br><br>特性：双子鬼，双鬼房，主鬼提供所有证据，副鬼能提供emf5级证据，猎杀时二选一进行猎杀，分为快慢鬼；也会进行双互动，主鬼互动后也会带动副鬼进行互动；十字架判定了主鬼位置即可阻挡猎杀；孪魂分为主副两鬼，主鬼互动范围为半径 3m 的圆形范围，副鬼互动范围为鬼房中心半径 16m 的圆形范围；<br><br>技能：进行双互动，主鬼互动带动副鬼进行互动（双互动）；<br><br>速度：1.53m/s（主鬼），1.87m/s（副鬼）；（注：副鬼满速快于亡魂，为3.08m/s，会出现脚步失真现象）；<br><br>猎杀阈值：50%；<br><br>判断方法：倾听声音&mdash;&mdash;双互动，基本同时但实际存在极短暂延迟（如果主副鬼互动范围重叠，双互动可能被误判为其他鬼魂连续互动两个物品，这是极易误判的）；猎杀速度是否不一致（当然运气不好可能一整局都是其中一只）；')">孪魂</button>
+
+    <button class="button" onclick="showPopup('雷魂<br><br>证据：五级，点阵，灵球；<br><br>特性：<br>可以利用打开的电器加速（与电器数量无关，与电器种类无关），对于电子设备干扰比正常鬼更远（正常鬼10m，雷魂15m）；速度会被电器限制到2.5m/s（无论视野加速速度达到了多少），雷魂吸电范围为：小图6m，中图8m，大图10m；<br><br>速度：1.7m/s-2.8m/s，2.5m/s（不享受视野加速叠加但具有内置视野加速，失去电器后2.5m/s速度取消，此处有两种情况：正常给予视野加速溜鬼时，雷魂失去电器后的视野加速是从2.5m/s开始叠加；不给予视野加速溜鬼（如厨房蹲溜）或者仅仅是雷魂经过其他地方放置的电器时，雷魂感知电器后的速度2.5m/s在失去电器后恢复常速1.7m/s）；<br><br>技能：雷魂可以进行远处电子互动；有人在鬼屋时，雷魂会爆麦，使得声音传感器可以经常飙到100%；雷魂附近的电子设备经常过载或者失灵。特别是声音传感器，经常可以飚到70%以上。雷魂猎杀时，能够干扰附近15m内的手持电子设备。雷魂经常会爆掉房间原有的电子设备或者房间灯；<br><br>猎杀阈值：50%，65%~70%（附近有电器）；<br><br>判断方法：有电器下早猎、活跃、猎杀速度快；可以将鬼房电器全部移除，在溜鬼点或者鬼魂前往溜鬼点的路径上摆电器观察变速（这样做是为了区别在鬼房起步快的寒魔）；')">雷魂</button>
+
+    <button class="button" onclick="showPopup('幻妖<br><br>证据：指纹（必给证据），五级，灵球；<br><br>特性：<br>幻妖留下的指纹会多出一指，有六分之一概率出现六指（门、箱子、帐篷、电线杆、营地的木桌、营地的灯泡）、五指（键盘、监狱牢房门）、二指（灯的开关）（一般动门留指纹8次以内，几乎必会出现六指）；<br>同时幻妖每次本应留下指纹的互动有25%概率不留下指纹；猎杀时会变换模型（不是爬着，站着，下腰之类的动作）（6.6%概率，每次猎杀至少有一次变形）；<br>0.9版本指纹和踩盐统一为紫外线证据后，幻妖踩盐后即使走动也概率不给紫外线脚印；<br>0.9版本更新后，幻妖出现了以灵异形态猎杀的bug；注意已死玩家无法看到变换形态；<br><br>技能：指纹时间会被缩短（减半），可多次叠加，指纹存续时间少于15s时，现有指纹将消失；<br><br>速度：1.7m/s-2.8m/s；<br><br>猎杀阈值：50%；<br><br>判断方法：动门留下的指纹中出现特殊指纹或者未留下锁定幻妖或者模拟幻妖的拟魂；猎杀过程中变换鬼魂模型种类也是锁定幻妖或者模拟幻妖的拟魂；在飞升版本至0.9.0.9更新前，幻妖脚步出现间断性失真的现象，也可以帮助躲在柜子里的玩家判断，但是0.9.0.9更新公告中明确表示修复幻妖脚步；')">幻妖</button>
+
+    <button class="button" onclick="showPopup('拟魂<br><br>证据：刺骨，指纹，通灵盒，灵球（不是证据是特性）；<br><br>特性：必有灵球，无论难度；<br><br>技能：拟魂会模拟不同鬼魂（无论是否发起猎杀），也可以模拟不同鬼魂的特性，例如幻妖的特殊指纹，但无法模拟证据（emf5级，点阵，鬼魂笔记），拟魂每 30s-120s 会切换一次模仿的对象，但是不会在猎杀期间切换，连续猎杀时也可以模仿相同鬼魂；（附：未验证，拟魂是否会在模拟后恢复到本体，即拟魂是否只有在开局未模拟之前以本体出现，之后均不为本体）<br><br>速度：初始速度＜1.7m/s（本体），其他与模拟鬼魂一致；<br><br>猎杀阈值：50%（本体）；<br><br>判断方法：任何难度，无论有无证据必给灵球！可通过观察连续几次猎杀中是否出现异样的鬼魂（能一眼判断出来与其余几次不同的）锁定拟魂；或者耳朵比较灵的话可以在进门猎杀情况下听出拟魂本体的慢速脚步声（不建议使用，因为拟大爷想啥时候猎咱也不知道）；')">拟魂</button>
+
+    <button class="button" onclick="showPopup('魔洛伊<br><br>证据：通灵盒（必给证据），笔记，刺骨；<br><br>特性：圣木对魔洛伊的效果为普通效果的1.5倍（注意：致盲后若鬼去了别的楼层，也可能会丢失目标超过普通效果时间，此时不能通过此办法确定鬼为魔洛伊）；猎杀时初始速度与玩家理智有关；<br><br>技能：玩家使用通灵盒收到回复时或魔洛伊开启收音器时，会被诅咒，使玩家理智双倍下降（0.24%/s，正常为0.12%/s），使用理智药可以解除诅咒，离开调查区域暂停该理智降速；<br><br>速度：1.5m/s（达到猎杀阈值后，每流失1%的团队理智，可以让魔洛伊获得0.015m/s的初速加成），2.25m/s（0理智），满速为3.7125m/s（最快）；魔洛伊具有视野加速；<br><br>猎杀阈值：50%；<br><br>判断方法：通过几次猎杀的速度判断，50理智猎杀时很慢，0理智下非常快；有理智屏的情况下可以观察收到回复玩家的理智降低速率；猎杀时亦可以点圣木计时判断（推荐大图使用，小图鬼真的容易窜到别的楼层影响判断）；')">魔洛伊</button>
+
+    <button class="button" onclick="showPopup('雾影<br><br>证据：通灵盒（必给证据），点阵，笔记；<br><br>特性：用通灵盒会有概率听到特殊音效（为大声喘气）（所有人使用通灵盒收到回复时均有可能听到）；<br><br>技能：猎杀时全图透视进行找人，无法躲藏，包括许多无敌点；3m外极速接近玩家，靠近后速度降至0.4m/s；同时碰撞体积非常大，离远一点，小心延迟杀；<br><br>速度：3m/s（6m外），1.5m/s（2.5m到6m），0.4m/s（2.5m内）；<br><br>猎杀阈值：40%；<br><br>判断方法：猎杀时初始脚步快的飞起，靠近人后变得非常慢（只要不被堵到死路基本不会嘎（萌新之友）；全图透视寻址，不要试图躲起来；或者回复特殊通灵盒音效也可以判断（飞升版本依然存在该音效）；')">雾影</button>
+
+    <button class="button" onclick="showPopup('刹耶<br><br>证据：点阵，灵球，笔记；<br><br>特性：有玩家在附近会随时间流逝不断衰老，每次老化影响为：速度降低0.175m/s，猎杀阈值降低6%，互动数减少15%（最多衰老十次）；<br><br>技能：开局刹耶通常从一个房间到另一个房间，并且进行两次互动；<br><br>速度：2.75m/s，1m/s（最老速度）；（没有视野加速）<br><br>猎杀阈值：75%（初始）；<br><br>判断方法：猎杀时刹耶不具有视野加速，随时间流逝而老化变慢；飞升版本更新后，刹耶早期活跃程度非常明显，经常高互动高灵异以降低玩家理智以发起猎杀；用通灵板的情况下询问年龄随时间变化（触发刹耶老化判定）会得到不同结果；')">刹耶</button>
+
+</div>
+</div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+  <script>
+    // 定义一个函数来更新正计时
+    function updateCountdown() {
+      var countdown = document.getElementById("time");
+      var now = new Date().getTime();
+      var distance = now - startTime;
+
+      // 计算时间差
+      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      // 输出格式化的时间
+      countdown.innerHTML = (hours < 10? "0" : "") + hours + ":" +
+        (minutes < 10? "0" : "") + minutes + ":" +
+        (seconds < 10? "0" : "") + seconds;
+    }
+
+    // 设置开始时间
+    var startTime = new Date().getTime();
+
+    // 存储计时器的interval ID
+    var intervalId = null;
+
+    // 启动正计时
+    function startCountdown() {
+      if (intervalId === null) { // 确保计时器没有在运行
+        startTime = new Date().getTime(); // 重置开始时间
+        intervalId = setInterval(updateCountdown, 1000);
+      }
+    }
+
+    // 停止正计时
+    function stopCountdown() {
+      if (intervalId!== null) { // 确保计时器在运行
+        clearInterval(intervalId);
+        intervalId = null; // 重置intervalId
+      }
+    }
+
+    // 重置正计时
+    function resetCountdown() {
+      stopCountdown();
+      startTime = new Date().getTime();
+      updateCountdown();
+    }
+
+    // 熏香倒计时相关变量
+    var incenseStartTime = null;
+    var incenseIntervalId = null;
+    var incenseDuration = 90; // 90秒
+
+    // 更新熏香倒计时
+    function updateIncenseCountdown() {
+      var incenseCountdown = document.getElementById("incense-time");
+      var now = new Date().getTime();
+      var distance = incenseDuration - Math.floor((now - incenseStartTime) / 1000);
+
+      if (distance < 0) {
+        distance = 0;
+        stopIncenseCountdown();
+      }
+
+      var minutes = Math.floor(distance / 60);
+      var seconds = distance % 60;
+
+      incenseCountdown.innerHTML = (minutes < 10? "0" : "") + minutes + ":" +
+        (seconds < 10? "0" : "") + seconds;
+    }
+
+    // 启动熏香倒计时
+    function startIncenseCountdown() {
+      if (incenseIntervalId === null) {
+        incenseStartTime = new Date().getTime();
+        incenseIntervalId = setInterval(updateIncenseCountdown, 1000);
+      }
+    }
+
+    // 停止熏香倒计时
+    function stopIncenseCountdown() {
+      if (incenseIntervalId!== null) {
+        clearInterval(incenseIntervalId);
+        incenseIntervalId = null;
+      }
+    }
+
+    // 重置熏香倒计时
+    function resetIncenseCountdown() {
+      stopIncenseCountdown();
+      incenseStartTime = new Date().getTime();
+      updateIncenseCountdown();
+    }
+
+    // 魂魄熏香倒计时相关变量
+    var soulIncenseStartTime = null;
+    var soulIncenseIntervalId = null;
+    var soulIncenseDuration = 180; // 180秒
+
+    // 更新魂魄熏香倒计时
+    function updateSoulIncenseCountdown() {
+      var soulIncenseCountdown = document.getElementById("soul-incense-time");
+      var now = new Date().getTime();
+      var distance = soulIncenseDuration - Math.floor((now - soulIncenseStartTime) / 1000);
+
+      if (distance < 0) {
+        distance = 0;
+        stopSoulIncenseCountdown();
+      }
+
+      var minutes = Math.floor(distance / 60);
+      var seconds = distance % 60;
+
+      soulIncenseCountdown.innerHTML = (minutes < 10? "0" : "") + minutes + ":" +
+        (seconds < 10? "0" : "") + seconds;
+    }
+
+    // 启动魂魄熏香倒计时
+    function startSoulIncenseCountdown() {
+      if (soulIncenseIntervalId === null) {
+        soulIncenseStartTime = new Date().getTime();
+        soulIncenseIntervalId = setInterval(updateSoulIncenseCountdown, 1000);
+      }
+    }
+
+    // 停止魂魄熏香倒计时
+    function stopSoulIncenseCountdown() {
+      if (soulIncenseIntervalId!== null) {
+        clearInterval(soulIncenseIntervalId);
+        soulIncenseIntervalId = null;
+      }
+    }
+
+    // 重置魂魄熏香倒计时
+    function resetSoulIncenseCountdown() {
+      stopSoulIncenseCountdown();
+      soulIncenseStartTime = new Date().getTime();
+      updateSoulIncenseCountdown();
+    }
+
+    // 同时启动熏香倒计时和魂魄倒计时
+    function startBothIncenseCountdowns() {
+      resetIncenseCountdown();
+      resetSoulIncenseCountdown();
+      startIncenseCountdown();
+      startSoulIncenseCountdown();
+    }
+
+    // 恶魔猎杀倒计时相关变量
+    var demonHuntStartTime = null;
+    var demonHuntIntervalId = null;
+    var demonHuntDuration = 20; // 20秒
+
+    // 更新恶魔猎杀倒计时
+    function updateDemonHuntCountdown() {
+      var demonHuntCountdown = document.getElementById("demon-hunt-time");
+      var now = new Date().getTime();
+      var distance = demonHuntDuration - Math.floor((now - demonHuntStartTime) / 1000);
+
+      if (distance < 0) {
+        distance = 0;
+        stopDemonHuntCountdown();
+      }
+
+      var seconds = distance;
+
+      demonHuntCountdown.innerHTML = (seconds < 10? "0" : "") + seconds;
+    }
+
+    // 启动恶魔猎杀倒计时
+    function startDemonHuntCountdown() {
+      if (demonHuntIntervalId === null) {
+        demonHuntStartTime = new Date().getTime();
+        demonHuntIntervalId = setInterval(updateDemonHuntCountdown, 1000);
+      }
+    }
+
+    // 停止恶魔猎杀倒计时
+    function stopDemonHuntCountdown() {
+      if (demonHuntIntervalId!== null) {
+        clearInterval(demonHuntIntervalId);
+        demonHuntIntervalId = null;
+      }
+    }
+
+    // 重置恶魔猎杀倒计时
+    function resetDemonHuntCountdown() {
+      stopDemonHuntCountdown();
+      demonHuntStartTime = new Date().getTime();
+      updateDemonHuntCountdown();
+    }
+
+    // 普通猎杀倒计时相关变量
+    var normalHuntStartTime = null;
+    var normalHuntIntervalId = null;
+    var normalHuntDuration = 25; // 25秒
+
+    // 更新普通猎杀倒计时
+    function updateNormalHuntCountdown() {
+      var normalHuntCountdown = document.getElementById("normal-hunt-time");
+      var now = new Date().getTime();
+      var distance = normalHuntDuration - Math.floor((now - normalHuntStartTime) / 1000);
+
+      if (distance < 0) {
+        distance = 0;
+        stopNormalHuntCountdown();
+      }
+
+      var seconds = distance;
+
+      normalHuntCountdown.innerHTML = (seconds < 10? "0" : "") + seconds;
+    }
+
+    // 启动普通猎杀倒计时
+    function startNormalHuntCountdown() {
+      if (normalHuntIntervalId === null) {
+        normalHuntStartTime = new Date().getTime();
+        normalHuntIntervalId = setInterval(updateNormalHuntCountdown, 1000);
+      }
+    }
+
+    // 停止普通猎杀倒计时
+    function stopNormalHuntCountdown() {
+      if (normalHuntIntervalId!== null) {
+        clearInterval(normalHuntIntervalId);
+        normalHuntIntervalId = null;
+      }
+    }
+
+    // 重置普通猎杀倒计时
+    function resetNormalHuntCountdown() {
+      stopNormalHuntCountdown();
+      normalHuntStartTime = new Date().getTime();
+      updateNormalHuntCountdown();
+    }
+
+    // 同时启动恶魔猎杀倒计时和普通猎杀倒计时
+    function startBothHuntCountdowns() {
+      resetDemonHuntCountdown();
+      resetNormalHuntCountdown();
+      startDemonHuntCountdown();
+      startNormalHuntCountdown();
+    }
+
+    // 显示提示框
+    function showTooltip(element, text) {
+      var tooltip = document.getElementById("tooltip");
+      tooltip.innerHTML = text;
+      tooltip.style.display = "block";
+      var windowWidth = window.innerWidth;
+      var windowHeight = window.innerHeight;
+      var tooltipWidth = tooltip.offsetWidth;
+      var tooltipHeight = tooltip.offsetHeight;
+
+      // 计算弹窗的中心位置
+      tooltip.style.left = (windowWidth / 2) - (tooltipWidth / 2) + "px";
+      tooltip.style.top = (windowHeight / 2) - (tooltipHeight / 2) + "px";
+
+      setTimeout(function () {
+        tooltip.style.opacity = 1;
+      }, 100);
+
+      // 设置定时器自动关闭弹窗
+      setTimeout(hideTooltip, 2000); // 2秒后自动关闭
+    }
+
+    // 隐藏提示框
+    function hideTooltip() {
+      var tooltip = document.getElementById("tooltip");
+      tooltip.style.opacity = 0;
+      setTimeout(function () {
+        tooltip.style.display = "none";
+      }, 300); // 与opacity过渡时间一致
+    }
+	
+    // 显示弹窗
+    function showPopup(text) {
+      document.getElementById('popup-text').innerHTML = text; // 使用 innerHTML 来解析 <br> 标签
+      document.getElementById('popup').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+    }
+
+    // 隐藏弹窗
+    function hidePopup() {
+      document.getElementById('popup').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+  </script>
+</body>
+
+</html>
