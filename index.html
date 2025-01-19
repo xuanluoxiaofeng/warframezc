@@ -1,22 +1,57 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>跳转中...</title>
-    <script type="text/javascript">
-        // 设置跳转的URL
-        var targetUrl = "http://xuanluo.xyz:800/warframe/";
-        // 设置跳转的延迟时间（单位：毫秒，这里设置为0表示立即跳转）
-        var delay = 0;
-
-        // 延迟跳转
-        setTimeout(function() {
-            window.location.href = targetUrl;
-        }, delay);
-    </script>
+    <title>Warframe 仲裁</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        .container img {
+            max-width: 100%;
+            height: auto;
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5em;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-    <p>正在跳转，请稍候...</p>
+    <div class="container">
+        <h1>Warframe 仲裁</h1>
+		<h2>本站非实时刷新，10分钟刷新一次图片</h2>
+        <img id="arbitration-image" src="http://xuanluo.xyz:800/warframe/zc.png" alt="Warframe 仲裁">
+        <p></p>
+    </div>
+
+    <script>
+        // 定义刷新图片的函数
+        function refreshImage() {
+            const imgElement = document.getElementById('arbitration-image');
+            // 在图片URL后添加时间戳，避免浏览器缓存
+            imgElement.src = "http://xuanluo.xyz:800/warframe/zc.png?t=" + new Date().getTime();
+        }
+
+        // 每5分钟（300000毫秒）刷新一次图片
+        setInterval(refreshImage, 300000);
+    </script>
 </body>
 </html>
